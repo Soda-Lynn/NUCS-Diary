@@ -4,19 +4,20 @@
   <button onclick="formatText('em')"><i>I</i></button>
   <button onclick="formatText('h2')">H2</button>
   <button onclick="formatList()">UL</button>
+  <button onclick="addImage()">Image</button>
   <button onclick="publish()">Publish</button>
 </div>
 
 <script>
-// Wrap selected text in HTML tags
+// Wrap selected text in a tag
 function formatText(tag) {
   const textarea = document.getElementById('content');
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const selected = textarea.value.slice(start, end);
-  const before = textarea.value.slice(0, start);
-  const after = textarea.value.slice(end);
-  textarea.value = before + `<${tag}>` + selected + `</${tag}>` + after;
+  textarea.value = textarea.value.slice(0, start) +
+                   `<${tag}>${selected}</${tag}>` +
+                   textarea.value.slice(end);
 }
 
 // Wrap selected text in <ul><li>
@@ -24,10 +25,24 @@ function formatList() {
   const textarea = document.getElementById('content');
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
-  const selected = textarea.value.slice(start, end).split('\n').map(l => `<li>${l}</li>`).join('');
-  const before = textarea.value.slice(0, start);
-  const after = textarea.value.slice(end);
-  textarea.value = before + `<ul>` + selected + `</ul>` + after;
+  const selected = textarea.value.slice(start, end)
+                     .split('\n')
+                     .map(l => `<li>${l}</li>`).join('');
+  textarea.value = textarea.value.slice(0, start) +
+                   `<ul>${selected}</ul>` +
+                   textarea.value.slice(end);
+}
+
+// Insert GitHub image
+function addImage() {
+  const url = prompt("Enter raw GitHub image URL:");
+  if (!url) return;
+  const textarea = document.getElementById("content");
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  textarea.value = textarea.value.slice(0, start) +
+                   `<img src="${url}" alt="" style="max-width:100%;">` +
+                   textarea.value.slice(end);
 }
 
 // Publish post
