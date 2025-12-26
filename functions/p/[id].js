@@ -1,12 +1,29 @@
-return new Response(`
+export async function onRequestGet({ params, env }) {
+  const content = await env.POSTS.get(params.id);
+  if (!content) return new Response("Post not found", { status: 404 });
+
+  // Use first 100 chars for description meta
+  const description = content.replace(/<[^>]*>/g, "").slice(0, 100);
+
+  return new Response(`
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>AnonPost</title>
-  <meta property="og:title" content="AnonPost">
-  <meta property="og:description" content="${content.slice(0, 100)}">
+  <title>NUCS Diary Post</title>
+  <meta property="og:title" content="NUCS Diary Post">
+  <meta property="og:description" content="${description}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 20px; line-height: 1.5; }
+    article { max-width: 700px; margin: auto; }
+    h1,h2,h3 { margin: 15px 0 10px; }
+    p { margin: 10px 0; }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+    ul { margin: 10px 0 10px 20px; }
+    li { margin: 5px 0; }
+  </style>
 </head>
 <body>
 <article>
@@ -14,4 +31,5 @@ ${content}
 </article>
 </body>
 </html>
-`, { headers: { "Content-Type": "text/html" } });
+  `, { headers: { "Content-Type": "text/html" } });
+}
