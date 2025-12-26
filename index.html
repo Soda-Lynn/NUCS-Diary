@@ -31,14 +31,29 @@
 <button onclick="publish()">Publish</button>
 
 <script>
-function publish() {
+async function publish() {
   const text = document.getElementById("content").value;
   if (!text.trim()) return alert("Write something!");
-  const encoded = btoa(unescape(encodeURIComponent(text)));
-  const id = Math.random().toString(36).substring(2, 8);
-  window.location.href = "post.html#" + id + ":" + encoded;
+
+  // Wrap each line in <p> tags
+  const html = text
+    .split("\n")
+    .map(line => `<p>${line}</p>`)
+    .join("");
+
+  // Send content to Cloudflare Pages Function
+  const res = await fetch("/publish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: html })
+  });
+
+  const data = await res.json();
+  const url = window.location.origin + data.url;
+  window.location.href = url; // redirect to the real post URL
 }
 </script>
+
 
 </body>
 </html>
