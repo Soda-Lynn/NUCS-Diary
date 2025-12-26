@@ -1,10 +1,12 @@
 export async function onRequestGet({ params, env }) {
-  const content = await env.POSTS.get(params.id);
-  if (!content) return new Response("Post not found", { status: 404 });
+  const postDataRaw = await env.POSTS.get(params.id);
+  if (!postDataRaw) return new Response("Post not found", { status: 404 });
 
+  const postData = JSON.parse(postDataRaw);
+  const content = postData.content;
+  const ogImage = postData.ogImage;
   const description = content.replace(/<[^>]*>/g, "").slice(0, 100);
   const title = "NUCS Diary Post";
-  const ogImage = ""; // Optional: put GitHub raw image URL here
 
   return new Response(`
 <!DOCTYPE html>
@@ -18,14 +20,7 @@ ${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
 <meta property="og:type" content="article">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  /* Allow Telegram to apply theme */
-  body {
-    font-family: sans-serif;
-    padding: 20px;
-    line-height: 1.5;
-    background: none;
-    color: inherit;
-  }
+  body { font-family: sans-serif; padding: 20px; line-height: 1.5; background: none; color: inherit; }
   article { max-width: 700px; margin: auto; }
   h1, h2, h3 { margin: 15px 0 10px; }
   p { margin: 10px 0; }
