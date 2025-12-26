@@ -1,59 +1,46 @@
-export async function onRequestGet({ params, env }) {
-  const postDataRaw = await env.POSTS.get(params.id);
-  if(!postDataRaw) return new Response("Post not found", { status: 404 });
-
-  const postData = JSON.parse(postDataRaw);
-  const content = postData.content;
-  const title = postData.title;
-  let ogImage = postData.ogImage;
-
-  // Fallback OG image from first img
-  if(!ogImage){
-    const imgMatch = content.match(/<img[^>]+src="([^">]+)"/i);
-    if(imgMatch) ogImage = imgMatch[1];
+// articles.json example
+/*
+[
+  {
+    "id": "12345",
+    "title": "...",
+    "author": "...",
+    "date": "...",
+    "summary": "...",
+    "featureImage": "...",
+    "paragraphs": [...],
+    "images": [...]
   }
+]
+*/
 
-  const description = content.replace(/<[^>]*>/g,"").slice(0,100);
+import articles from './articles.json';
 
-  return new Response(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>${title}</title>
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
-<meta property="og:type" content="article">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{font-family:sans-serif;padding:20px;margin:0;line-height:1.5;background:inherit;color:inherit;}
-article{max-width:700px;margin:auto;}
-h1,h2,h3{margin:15px 0 10px;}
-p{margin:10px 0;}
-strong{font-weight:bold;}
-em{font-style:italic;}
-u{text-decoration:underline;}
-s{text-decoration:line-through;}
-a{color:#0645AD;text-decoration:underline;}
-ul,ol{margin:10px 0 10px 20px;}
-li{margin:5px 0;}
-img,video{max-width:100%;height:auto;margin:10px 0;}
-.ql-align-center{text-align:center;}
-.ql-align-right{text-align:right;}
-.ql-align-justify{text-align:justify;}
-.ql-size-small{font-size:0.75em;}
-.ql-size-large{font-size:1.25em;}
-.ql-size-huge{font-size:1.5em;}
-</style>
-</head>
-<body>
-<article>
-<h1>${title}</h1>
-<div class="content">
-${content}
-</div>
-</article>
-</body>
-</html>`, { headers: { "Content-Type": "text/html" } });
+export function renderArticle(id) {
+  const post = articles.find(a => a.id === id);
+  if (!post) return;
+
+  // same injection as publish.js
+  document.title = post.title;
+  document.getElementById('article-title').textContent = post.title;
+  document.getElementById('article-author').textContent = post.author;
+  document.getElementById('article-date').textContent = new Date(post.date).toLocaleDateString('my-MM');
+  document.getElementById('article-date').setAttribute('datetime', post.date);
+
+  const body = document.getElementById('article-body');
+  post.paragraphs.forEach(p => {
+    const para = document.createElement('p');
+    para.textContent = p;
+    body.appendChild(para);
+  });
+  post.images.forEach(img => {
+    const figure = document.createElement('figure');
+    const image = document.createElement('img');
+    image.src = img.src;
+    const caption = document.createElement('figcaption');
+    caption.textContent = img.caption;
+    figure.appendChild(image);
+    figure.appendChild(caption);
+    body.appendChild(figure);
+  });
 }
