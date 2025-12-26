@@ -1,60 +1,57 @@
-<textarea id="content" rows="10" style="width:100%;"></textarea>
-<div style="margin:10px 0;">
-  <button onclick="formatText('strong')"><b>B</b></button>
-  <button onclick="formatText('em')"><i>I</i></button>
-  <button onclick="formatText('h2')">H2</button>
-  <button onclick="formatList()">UL</button>
-  <button onclick="addImage()">Image</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NUCS Diary - Write Post</title>
+
+<!-- Quill.js styles -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<style>
+  #editor { height: 300px; background: white; padding: 10px; }
+  .toolbar-container { margin-bottom: 10px; }
+  button { margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<h1>NUCS Diary - Write Post</h1>
+
+<!-- Quill editor container -->
+<div id="editor"></div>
+
+<div style="margin-top:10px;">
   <button onclick="publish()">Publish</button>
 </div>
 
+<!-- Quill.js script -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
 <script>
-// Wrap selected text in a tag
-function formatText(tag) {
-  const textarea = document.getElementById('content');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selected = textarea.value.slice(start, end);
-  textarea.value = textarea.value.slice(0, start) +
-                   `<${tag}>${selected}</${tag}>` +
-                   textarea.value.slice(end);
-}
+// Initialize Quill editor
+const quill = new Quill('#editor', {
+  theme: 'snow',
+  placeholder: 'Write your diary post...',
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'header': [1, 2, 3, false] }],
+      ['link', 'image'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ]
+  }
+});
 
-// Wrap selected text in <ul><li>
-function formatList() {
-  const textarea = document.getElementById('content');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selected = textarea.value.slice(start, end)
-                     .split('\n')
-                     .map(l => `<li>${l}</li>`).join('');
-  textarea.value = textarea.value.slice(0, start) +
-                   `<ul>${selected}</ul>` +
-                   textarea.value.slice(end);
-}
-
-// Insert GitHub image
-function addImage() {
-  const url = prompt("Enter raw GitHub image URL:");
-  if (!url) return;
-  const textarea = document.getElementById("content");
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  textarea.value = textarea.value.slice(0, start) +
-                   `<img src="${url}" alt="" style="max-width:100%;">` +
-                   textarea.value.slice(end);
-}
-
-// Publish post
+// Publish function
 async function publish() {
-  const text = document.getElementById("content").value;
-  if (!text.trim()) return alert("Write something!");
+  const html = quill.root.innerHTML;
+  if (!html || html === '<p><br></p>') return alert("Write something!");
 
   try {
     const res = await fetch("/publish", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: text })
+      body: JSON.stringify({ content: html })
     });
 
     if (!res.ok) {
@@ -69,3 +66,6 @@ async function publish() {
   }
 }
 </script>
+
+</body>
+</html>
