@@ -9,14 +9,9 @@ function fontSize(size) {
 
 function lineHeight(value) {
   if (!value) return;
-
-  const sel = window.getSelection();
-  if (!sel.rangeCount) return;
-
-  let node = sel.anchorNode;
-  while (node && node.nodeType !== 1) node = node.parentNode;
-
-  if (node) node.style.lineHeight = value;
+  document.execCommand("insertHTML", false,
+    `<div style="line-height:${value}">${window.getSelection()}</div>`
+  );
 }
 
 function addLink() {
@@ -28,16 +23,12 @@ function uploadImage() {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
-
   input.onchange = () => {
-    const url = URL.createObjectURL(input.files[0]);
-    document.execCommand("insertHTML", false, `
-<figure contenteditable="false">
-  <img src="${url}">
-  <figcaption class="caption" contenteditable="true">Caption (optional)</figcaption>
-</figure>
-<p><br></p>
-`);
+    const file = input.files[0];
+    const url = URL.createObjectURL(file);
+    document.execCommand("insertHTML", false,
+      `<img src="${url}">`
+    );
   };
   input.click();
 }
@@ -46,16 +37,12 @@ function uploadVideo() {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "video/*";
-
   input.onchange = () => {
-    const url = URL.createObjectURL(input.files[0]);
-    document.execCommand("insertHTML", false, `
-<figure contenteditable="false">
-  <video src="${url}" controls></video>
-  <figcaption class="caption" contenteditable="true">Caption (optional)</figcaption>
-</figure>
-<p><br></p>
-`);
+    const file = input.files[0];
+    const url = URL.createObjectURL(file);
+    document.execCommand("insertHTML", false,
+      `<video src="${url}" controls></video>`
+    );
   };
   input.click();
 }
