@@ -1,59 +1,25 @@
-// Helper to generate unique IDs
-function generateId() {
-  return 'post-' + Date.now();
-}
 
-// Save post to localStorage
-function savePost(title, content) {
-  const id = generateId();
-  const post = { id, title, content, date: new Date().toISOString() };
-  localStorage.setItem(id, JSON.stringify(post));
-  return post;
-}
+export async function onRequestPost({ request, env }) {
+  try {
+    const data = await request.json();
+    if (!data.content) return new Response("No content", { status: 400 });
 
-// Display a post in the page
-function displayPost(post) {
-  const container = document.getElementById('postsContainer');
-  const postDiv = document.createElement('div');
-  postDiv.className = 'post';
-  postDiv.innerHTML = `
-    <h3>${post.title}</h3>
-    <p>${post.content.replace(/\n/g, '<br>')}</p>
-    <small>${new Date(post.date).toLocaleString()}</small>
-  `;
-  container.prepend(postDiv); // newest post on top
-}
-
-// Load all posts on page load
-function loadPosts() {
-  const container = document.getElementById('postsContainer');
-  container.innerHTML = '';
-  Object.keys(localStorage)
-    .filter(key => key.startsWith('post-'))
-    .sort((a, b) => b.localeCompare(a)) // newest first
-    .forEach(key => {
-      const post = JSON.parse(localStorage.getItem(key));
-      displayPost(post);
+    const id = Math.random().toString(36).slice(2,8);
+    const postData = JSON.stringify({
+      content: data.content,
+      title: data.title || "NUCS Diary Post",
+      ogImage: data.ogImage || ""
     });
-}
 
-// Publish button click
-document.getElementById('publishBtn').addEventListener('click', () => {
-  const title = document.getElementById('title').value.trim();
-  const content = document.getElementById('content').value.trim();
+    await env.POSTS.put(id, postData);
 
-  if (!title || !content) {
-    alert('Please enter both title and content!');
-    return;
+    return new Response(JSON.stringify({ url: `/p/${id}` }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
-
-  const post = savePost(title, content);
-  displayPost(post);
-
-  // Clear inputs
-  document.getElementById('title').value = '';
-  document.getElementById('content').value = '';
-});
-
-// Load posts when page opens
-window.addEventListener('load', loadPosts);
+}
