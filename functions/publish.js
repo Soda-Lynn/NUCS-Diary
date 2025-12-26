@@ -1,19 +1,59 @@
-document.getElementById('postForm').addEventListener('submit', e => {
-  e.preventDefault();
+// Helper to generate unique IDs
+function generateId() {
+  return 'post-' + Date.now();
+}
 
-  const post = {
-    id: Date.now(), // Unique ID
-    title: document.getElementById('title').value,
-    author: document.getElementById('author').value,
-    featureImage: document.getElementById('featureImage').value,
-    summary: document.getElementById('summary').value,
-    paragraphs: document.getElementById('content').value.split('\n'),
-    date: new Date().toISOString()
-  };
+// Save post to localStorage
+function savePost(title, content) {
+  const id = generateId();
+  const post = { id, title, content, date: new Date().toISOString() };
+  localStorage.setItem(id, JSON.stringify(post));
+  return post;
+}
 
-  // Save post in localStorage (or send to a backend if you have one)
-  localStorage.setItem(`post-${post.id}`, JSON.stringify(post));
+// Display a post in the page
+function displayPost(post) {
+  const container = document.getElementById('postsContainer');
+  const postDiv = document.createElement('div');
+  postDiv.className = 'post';
+  postDiv.innerHTML = `
+    <h3>${post.title}</h3>
+    <p>${post.content.replace(/\n/g, '<br>')}</p>
+    <small>${new Date(post.date).toLocaleString()}</small>
+  `;
+  container.prepend(postDiv); // newest post on top
+}
 
-  // Redirect to the post renderer
-  window.location.href = `post.html?id=${post.id}`;
+// Load all posts on page load
+function loadPosts() {
+  const container = document.getElementById('postsContainer');
+  container.innerHTML = '';
+  Object.keys(localStorage)
+    .filter(key => key.startsWith('post-'))
+    .sort((a, b) => b.localeCompare(a)) // newest first
+    .forEach(key => {
+      const post = JSON.parse(localStorage.getItem(key));
+      displayPost(post);
+    });
+}
+
+// Publish button click
+document.getElementById('publishBtn').addEventListener('click', () => {
+  const title = document.getElementById('title').value.trim();
+  const content = document.getElementById('content').value.trim();
+
+  if (!title || !content) {
+    alert('Please enter both title and content!');
+    return;
+  }
+
+  const post = savePost(title, content);
+  displayPost(post);
+
+  // Clear inputs
+  document.getElementById('title').value = '';
+  document.getElementById('content').value = '';
 });
+
+// Load posts when page opens
+window.addEventListener('load', loadPosts);
