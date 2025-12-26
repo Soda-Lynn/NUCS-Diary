@@ -1,32 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="my">
 <head>
   <meta charset="UTF-8">
-  <title>NUCS_Diary</title>
-  <style>
-    body {
-      font-family: system-ui;
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-      white-space: pre-wrap;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NUCS Diary Post</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <article id="postContainer"></article>
 
-<div id="post"></div>
-
-<script>
-const hash = location.hash.substring(1);
-if (!hash) {
-  document.getElementById("post").innerText = "Post not found.";
-} else {
-  const parts = hash.split(":");
-  const content = decodeURIComponent(escape(atob(parts[1])));
-  document.getElementById("post").innerText = content;
-}
-</script>
-
+  <script src="id.js"></script>
 </body>
 </html>
