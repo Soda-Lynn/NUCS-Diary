@@ -1,69 +1,50 @@
-export async function onRequestGet({ params, env }) {
-  const postDataRaw = await env.POSTS.get(params.id);
-  if (!postDataRaw) return new Response("Post not found", { status: 404 });
+export async function onRequest({ params }) {
+  try {
+    const post = JSON.parse(
+      decodeURIComponent(escape(atob(params.id)))
+    );
 
-  const postData = JSON.parse(postDataRaw);
-  const content = postData.content;
-  const title = postData.title;
-  let ogImage = postData.ogImage;
-
-  if (!ogImage) {
-    const imgMatch = content.match(/<img[^>]+src="([^">]+)"/i);
-    if (imgMatch) ogImage = imgMatch[1];
-  }
-
-  const description = content.replace(/<[^>]*>/g, "").slice(0, 100);
-
-  return new Response(`
+    return new Response(`
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>${title}</title>
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
-<meta property="og:type" content="article">
+<title>${post.title}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="${post.title}">
+<meta property="og:description" content="Read this post">
+
 <style>
-  body {
-    font-family: sans-serif;
-    padding: 20px;
-    line-height: 1.5;
-    margin: 0;
-    background: inherit; 
-    color: inherit;
-  }
-  article {
-    max-width: 700px;
-    margin: auto;
-  }
-  h1,h2,h3 { margin: 15px 0 10px; }
-  p { margin: 10px 0; }
-  strong { font-weight: bold; }
-  em { font-style: italic; }
-  u { text-decoration: underline; }
-  s { text-decoration: line-through; }
-  a { color: #0645AD; text-decoration: underline; }
-  ul, ol { margin: 10px 0 10px 20px; }
-  li { margin: 5px 0; }
-  img, video { max-width: 100%; height: auto; margin: 10px 0; }
-  .ql-align-center { text-align: center; }
-  .ql-align-right { text-align: right; }
-  .ql-align-justify { text-align: justify; }
-  .ql-size-small { font-size: 0.75em; }
-  .ql-size-large { font-size: 1.25em; }
-  .ql-size-huge { font-size: 1.5em; }
+:root { color-scheme: light dark; }
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: system-ui, sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+img, video {
+  max-width: 100%;
+  border-radius: 8px;
+}
+figcaption {
+  font-size: 0.9em;
+  color: GrayText;
+  text-align: center;
+}
 </style>
 </head>
+
 <body>
-<article>
-  <h1>${title}</h1>
-  <div class="content">
-    ${content}
-  </div>
-</article>
+<h1>${post.title}</h1>
+${post.content}
 </body>
 </html>
-  `, { headers: { "Content-Type": "text/html" } });
+`, { headers: { "content-type": "text/html" } });
+
+  } catch {
+    return new Response("Invalid post", { status: 400 });
+  }
 }
