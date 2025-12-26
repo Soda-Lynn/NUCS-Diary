@@ -5,10 +5,16 @@
 <title>Create Post</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Telegram-friendly meta (preview) -->
 <meta property="og:type" content="article">
+<meta property="og:title" content="NUCS Diary Post">
+<meta property="og:description" content="Read this post">
+<meta property="og:image" content="">
 
 <style>
-:root { color-scheme: light dark; }
+:root {
+  color-scheme: light dark;
+}
 
 body {
   margin: 0;
@@ -22,9 +28,10 @@ header {
   border-bottom: 1px solid #ccc;
 }
 
-#title {
+input#title {
   width: 100%;
   font-size: 1.4em;
+  padding: 8px;
   border: none;
   outline: none;
   background: transparent;
@@ -42,6 +49,7 @@ header {
 .toolbar button,
 .toolbar select {
   padding: 6px 10px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -51,21 +59,11 @@ header {
   outline: none;
 }
 
-figure {
-  margin: 16px 0;
-}
-
-figcaption.caption {
-  margin-top: 6px;
-  font-size: 0.9em;
-  color: GrayText;
-  text-align: center;
-  outline: none;
-}
-
-img, video {
+.editor img,
+.editor video {
   max-width: 100%;
   border-radius: 8px;
+  margin: 10px 0;
 }
 
 footer {
@@ -73,7 +71,7 @@ footer {
   border-top: 1px solid #ccc;
 }
 
-.publish {
+button.publish {
   width: 100%;
   padding: 12px;
   font-size: 16px;
