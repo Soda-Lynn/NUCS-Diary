@@ -1,20 +1,15 @@
+
 export async function onRequestGet({ params, env }) {
   const postDataRaw = await env.POSTS.get(params.id);
   if(!postDataRaw) return new Response("Post not found", { status: 404 });
 
   const postData = JSON.parse(postDataRaw);
-  const content = postData.content;
-  const title = postData.title;
-  let ogImage = postData.ogImage;
+  const { content, title, ogImage, createdAt } = postData;
 
-  if (!ogImage){
-    const imgMatch = content.match(/<img[^>]+src="([^">]+)"/i);
-    if(imgMatch) ogImage = imgMatch[1];
-  }
+  const description = content.replace(/<[^>]*>/g,"").slice(0,120);
 
-  const description = content.replace(/<[^>]*>/g,"").slice(0,100);
-
-  return new Response(`<!DOCTYPE html>
+  return new Response(`
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -26,18 +21,14 @@ ${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{font-family:sans-serif;padding:20px;margin:0;line-height:1.5;background:inherit;color:inherit;}
+body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;padding:20px;margin:0;color:#222;background:#fff;line-height:1.6;}
 article{max-width:700px;margin:auto;}
-h1,h2,h3{margin:15px 0 10px;}
-p{margin:10px 0;}
-strong{font-weight:bold;}
-em{font-style:italic;}
-u{text-decoration:underline;}
-s{text-decoration:line-through;}
-a{color:#0645AD;text-decoration:underline;}
-ul,ol{margin:10px 0 10px 20px;}
-li{margin:5px 0;}
-img,video{max-width:100%;height:auto;margin:10px 0;}
+h1{font-size:2.2em;margin-bottom:0.5em;}
+.post-meta{color:#555;font-size:0.9em;margin-bottom:1.5em;}
+.post-content p{margin:1em 0;}
+figure{margin:1.5em 0;text-align:center;}
+figure img, figure video{max-width:100%;height:auto;}
+figcaption{font-size:0.85em;color:#555;margin-top:0.3em;}
 .ql-align-center{text-align:center;}
 .ql-align-right{text-align:right;}
 .ql-align-justify{text-align:justify;}
@@ -48,11 +39,15 @@ img,video{max-width:100%;height:auto;margin:10px 0;}
 </head>
 <body>
 <article>
+<header>
 <h1>${title}</h1>
-<div class="content">
+<p class="post-meta">Published on ${new Date(createdAt).toLocaleDateString()}</p>
+</header>
+<section class="post-content">
 ${content}
-</div>
+</section>
 </article>
 </body>
-</html>`, { headers: { "Content-Type": "text/html" }});
+</html>
+`, { headers: { "Content-Type": "text/html" } });
 }
