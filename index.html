@@ -12,13 +12,13 @@
     font-family: sans-serif;
     margin: 0;
     padding: 20px;
-    background: inherit;  /* inherits Telegram theme */
+    background: inherit;  /* theme adaptive */
     color: inherit;
   }
 
   #editor {
     height: 300px;
-    background: inherit;  /* inherits theme */
+    background: inherit;
     color: inherit;
     padding: 10px;
   }
@@ -41,7 +41,7 @@
 
 <label>
   Preview image URL (optional for Telegram link preview):
-  <input type="text" id="ogImage" placeholder="https://raw.githubusercontent.com/...">
+  <input type="text" id="ogImage" placeholder="https://example.com/preview.jpg">
 </label>
 
 <div>
@@ -57,12 +57,40 @@ const quill = new Quill('#editor', {
     toolbar: [
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'header': [1, 2, 3, false] }],
-      ['link', 'image'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image', 'video'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      [{ 'color': [] }],
+      [{ 'background': [] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
       ['clean']
     ]
   }
 });
+
+// Custom video handler to insert <video> tag
+function customVideoHandler() {
+  const fileInput = document.createElement('input');
+  fileInput.setAttribute('type', 'file');
+  fileInput.setAttribute('accept', 'video/mp4');
+  fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    // Upload file to server or Cloudflare Pages
+    const formData = new FormData();
+    formData.append('video', file);
+    const res = await fetch('/upload-video', { method: 'POST', body: formData });
+    const data = await res.json();
+    if(data.url){
+      const range = quill.getSelection(true);
+      const videoHTML = `<video controls><source src="${data.url}" type="video/mp4"></video>`;
+      quill.clipboard.dangerouslyPasteHTML(range.index, videoHTML);
+    } else alert('Video upload failed');
+  };
+  fileInput.click();
+}
+
+quill.getModule('toolbar').addHandler('video', customVideoHandler);
 
 async function publish() {
   const html = quill.root.innerHTML;
@@ -71,7 +99,6 @@ async function publish() {
 
   if (!html || html === '<p><br></p>') return alert("Write something!");
 
-  // Auto pick first image if OG not entered
   if (!ogImage) {
     const imgMatch = html.match(/<img[^>]+src="([^">]+)"/i);
     if (imgMatch) ogImage = imgMatch[1];
