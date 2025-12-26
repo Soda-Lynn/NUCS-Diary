@@ -1,46 +1,21 @@
-// articles.json example
-/*
-[
-  {
-    "id": "12345",
-    "title": "...",
-    "author": "...",
-    "date": "...",
-    "summary": "...",
-    "featureImage": "...",
-    "paragraphs": [...],
-    "images": [...]
+// Get post ID from URL
+const params = new URLSearchParams(window.location.search);
+const postId = params.get('id');
+
+if (postId) {
+  const postData = localStorage.getItem(`post-${postId}`);
+  if (postData) {
+    const post = JSON.parse(postData);
+    const container = document.getElementById('postContainer');
+
+    container.innerHTML = `
+      <h1>${post.title}</h1>
+      <p><em>by ${post.author} | ${new Date(post.date).toLocaleString()}</em></p>
+      ${post.featureImage ? `<img src="${post.featureImage}" alt="Feature Image">` : ''}
+      <p>${post.summary}</p>
+      ${post.paragraphs.map(p => `<p>${p}</p>`).join('')}
+    `;
+
+    document.title = post.title;
   }
-]
-*/
-
-import articles from './articles.json';
-
-export function renderArticle(id) {
-  const post = articles.find(a => a.id === id);
-  if (!post) return;
-
-  // same injection as publish.js
-  document.title = post.title;
-  document.getElementById('article-title').textContent = post.title;
-  document.getElementById('article-author').textContent = post.author;
-  document.getElementById('article-date').textContent = new Date(post.date).toLocaleDateString('my-MM');
-  document.getElementById('article-date').setAttribute('datetime', post.date);
-
-  const body = document.getElementById('article-body');
-  post.paragraphs.forEach(p => {
-    const para = document.createElement('p');
-    para.textContent = p;
-    body.appendChild(para);
-  });
-  post.images.forEach(img => {
-    const figure = document.createElement('figure');
-    const image = document.createElement('img');
-    image.src = img.src;
-    const caption = document.createElement('figcaption');
-    caption.textContent = img.caption;
-    figure.appendChild(image);
-    figure.appendChild(caption);
-    body.appendChild(figure);
-  });
 }
