@@ -1,60 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>NUCS_Diary</title>
-  <style>
-    body {
-      font-family: system-ui;
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-    }
-    textarea {
-      width: 100%;
-      height: 300px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-<h2>Write anonymously</h2>
-
-<textarea id="content" placeholder="Write your post here..."></textarea>
-<br>
-<button onclick="publish()">Publish</button>
+<textarea id="content" rows="10" style="width:100%;"></textarea>
+<div style="margin:10px 0;">
+  <button onclick="formatText('strong')"><b>B</b></button>
+  <button onclick="formatText('em')"><i>I</i></button>
+  <button onclick="formatText('h2')">H2</button>
+  <button onclick="formatList()">UL</button>
+  <button onclick="publish()">Publish</button>
+</div>
 
 <script>
+// Wrap selected text in a tag
+function formatText(tag) {
+  const textarea = document.getElementById('content');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selected = textarea.value.slice(start, end);
+  const before = textarea.value.slice(0, start);
+  const after = textarea.value.slice(end);
+  textarea.value = before + `<${tag}>` + selected + `</${tag}>` + after;
+}
+
+// Wrap selected text in <ul><li>
+function formatList() {
+  const textarea = document.getElementById('content');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selected = textarea.value.slice(start, end).split('\n').map(l => `<li>${l}</li>`).join('');
+  const before = textarea.value.slice(0, start);
+  const after = textarea.value.slice(end);
+  textarea.value = before + `<ul>` + selected + `</ul>` + after;
+}
+
+// Publish function
 async function publish() {
   const text = document.getElementById("content").value;
   if (!text.trim()) return alert("Write something!");
 
-  // Wrap each line in <p> tags
-  const html = text
-    .split("\n")
-    .map(line => `<p>${line}</p>`)
-    .join("");
-
-  // Send content to Cloudflare Pages Function
   const res = await fetch("/publish", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content: html })
+    body: JSON.stringify({ content: text })
   });
 
+  if (!res.ok) return alert("Publish failed!");
+
   const data = await res.json();
-  const url = window.location.origin + data.url;
-  window.location.href = url; // redirect to the real post URL
+  window.location.href = window.location.origin + data.url;
 }
 </script>
-
-
-</body>
-</html>
-
