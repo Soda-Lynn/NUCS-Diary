@@ -1,6 +1,6 @@
 export async function onRequest({ params }) {
   try {
-    const post = JSON.parse(
+    const decoded = JSON.parse(
       decodeURIComponent(escape(atob(params.id)))
     );
 
@@ -9,19 +9,20 @@ export async function onRequest({ params }) {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${post.title}</title>
+<title>${decoded.title}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta property="og:type" content="article">
-<meta property="og:title" content="${post.title}">
+<meta property="og:title" content="${decoded.title}">
 <meta property="og:description" content="Read this post">
+<meta property="og:image" content="">
 
 <style>
 :root { color-scheme: light dark; }
 body {
+  font-family: system-ui, sans-serif;
   margin: 0;
   padding: 16px;
-  font-family: system-ui, sans-serif;
   background: Canvas;
   color: CanvasText;
 }
@@ -29,17 +30,12 @@ img, video {
   max-width: 100%;
   border-radius: 8px;
 }
-figcaption {
-  font-size: 0.9em;
-  color: GrayText;
-  text-align: center;
-}
 </style>
 </head>
 
 <body>
-<h1>${post.title}</h1>
-${post.content}
+<h1>${decoded.title}</h1>
+${decoded.content}
 </body>
 </html>
 `, { headers: { "content-type": "text/html" } });
