@@ -3,92 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Dynamic Meta Tags -->
-  <title id="meta-title">NUCS Diary Article</title>
-  <meta id="meta-description" name="description" content="">
-  <meta id="og-title" property="og:title" content="">
-  <meta id="og-description" property="og:description" content="">
-  <meta id="og-image" property="og:image" content="">
-  <meta id="og-url" property="og:url" content="">
-  <meta id="article-published_time" name="article:published_time" content="">
-  <meta id="twitter-card" name="twitter:card" content="summary_large_image">
-  
-  <!-- Fonts -->
-  <link rel="preload" href="https://static.files.bbci.co.uk/ws/simorgh-assets/public/fonts/Padauk/v2.8/normal.woff2" as="font" type="font/woff2" crossorigin>
-  <style>
-    @font-face {
-      font-family: 'Padauk';
-      src: url('https://static.files.bbci.co.uk/ws/simorgh-assets/public/fonts/Padauk/v2.8/normal.woff2') format('woff2');
-      font-weight: 400;
-      font-display: swap;
-    }
-    body {
-      font-family: 'Padauk', sans-serif;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      background: #fff;
-      color: #222;
-    }
-    article {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    article header h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-    article header .meta {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 1rem;
-    }
-    .story-body p {
-      margin-bottom: 1rem;
-    }
-    figure {
-      margin: 1rem 0;
-    }
-    figure img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-    figure figcaption {
-      font-size: 0.85rem;
-      color: #666;
-      text-align: center;
-      margin-top: 0.3rem;
-    }
-  </style>
+  <title>NUCS Diary - Write Post</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <article id="article">
-    <header>
-      <h1 id="article-title">Article Title</h1>
-      <p class="meta">
-        <time id="article-date" datetime="">Date</time> • 
-        <span id="article-author">Author</span>
-      </p>
-    </header>
-    <div class="story-body" id="article-body">
-      <!-- Paragraphs, images, videos will go here -->
-    </div>
-  </article>
+  <h1>Write Your Post</h1>
+  <form id="postForm">
+    <input type="text" id="title" placeholder="Article Title" required>
+    <input type="text" id="author" placeholder="Author Name" required>
+    <input type="text" id="featureImage" placeholder="Feature Image URL">
+    <textarea id="summary" placeholder="Summary"></textarea>
+    <textarea id="content" placeholder="Write your paragraphs (separate lines)"></textarea>
+    <button type="submit">Publish</button>
+  </form>
+
   <script src="publish.js"></script>
-</body>
-</html>      return alert("Publish failed: " + (err.error || res.status));
-    }
-
-    const data = await res.json();
-    window.location.href = window.location.origin + data.url;
-  } catch(e){
-    alert("Publish error: " + e.message);
-  }
-}
-</script>
-
 </body>
 </html>
