@@ -27,9 +27,9 @@ ${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
 <meta property="og:type" content="article">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body { font-family: sans-serif; padding: 20px; line-height: 1.5; background: inherit; color: inherit; }
+  body { font-family: sans-serif; padding: 20px; line-height: 1.5; /* no forced background */ }
   article { max-width: 700px; margin: auto; }
-  h1, h2, h3 { margin: 15px 0 10px; }
+  h1,h2,h3 { margin: 15px 0 10px; }
   p { margin: 10px 0; }
   strong { font-weight: bold; }
   em { font-style: italic; }
