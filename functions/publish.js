@@ -8,7 +8,8 @@ export async function onRequestPost({ request, env }) {
     const postData = JSON.stringify({
       content: data.content,
       title: data.title || "NUCS Diary Post",
-      ogImage: data.ogImage || ""
+      ogImage: data.ogImage || "",
+      createdAt: new Date().toISOString()
     });
 
     await env.POSTS.put(id, postData);
