@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NUCS_Diary</title>
+  <style>
+    body {
+      font-family: system-ui;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Write anonymously</h2>
+
+<textarea id="content" placeholder="Write your post here..."></textarea>
+<br>
+<button onclick="publish()">Publish</button>
+
+<script>
+function publish() {
+  const text = document.getElementById("content").value;
+  if (!text.trim()) return alert("Write something!");
+  const encoded = btoa(unescape(encodeURIComponent(text)));
+  const id = Math.random().toString(36).substring(2, 8);
+  window.location.href = "post.html#" + id + ":" + encoded;
+}
+</script>
+
+</body>
+</html>
 
