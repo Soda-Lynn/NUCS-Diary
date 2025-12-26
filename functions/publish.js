@@ -1,64 +1,24 @@
-function cmd(command) {
-  document.execCommand(command, false, null);
-}
+export async function onRequestPost({ request, env }) {
+  try {
+    const data = await request.json();
+    if (!data.content) return new Response("No content", { status: 400 });
 
-function fontSize(size) {
-  if (!size) return;
-  document.execCommand("fontSize", false, size);
-}
+    const id = Math.random().toString(36).slice(2, 8);
+    const postData = JSON.stringify({
+      content: data.content,
+      title: data.title || "NUCS Diary Post",
+      ogImage: data.ogImage || ""
+    });
 
-function lineHeight(value) {
-  if (!value) return;
-  document.execCommand("insertHTML", false,
-    `<div style="line-height:${value}">${window.getSelection()}</div>`
-  );
-}
+    await env.POSTS.put(id, postData);
 
-function addLink() {
-  const url = prompt("Enter URL:");
-  if (url) document.execCommand("createLink", false, url);
-}
-
-function uploadImage() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.onchange = () => {
-    const file = input.files[0];
-    const url = URL.createObjectURL(file);
-    document.execCommand("insertHTML", false,
-      `<img src="${url}">`
-    );
-  };
-  input.click();
-}
-
-function uploadVideo() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "video/*";
-  input.onchange = () => {
-    const file = input.files[0];
-    const url = URL.createObjectURL(file);
-    document.execCommand("insertHTML", false,
-      `<video src="${url}" controls></video>`
-    );
-  };
-  input.click();
-}
-
-function publish() {
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("editor").innerHTML.trim();
-
-  if (!title || !content) {
-    alert("Title or content missing");
-    return;
+    return new Response(JSON.stringify({ url: `/p/${id}` }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
-
-  const data = btoa(unescape(encodeURIComponent(
-    JSON.stringify({ title, content })
-  )));
-
-  location.href = `/p/${data}`;
 }
