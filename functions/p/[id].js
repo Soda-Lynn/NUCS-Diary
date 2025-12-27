@@ -3,16 +3,14 @@ export async function onRequestGet({ params, env }) {
   if (!raw) return new Response("Not found", { status: 404 });
 
   const post = JSON.parse(raw);
-  const content = post.content;
-  const title = post.title;
-  let ogImage = post.ogImage;
+  let { title, content, ogImage } = post;
 
   if (!ogImage) {
-    const img = content.match(/<img[^>]+src="([^">]+)"/);
-    if (img) ogImage = img[1];
+    const m = content.match(/<img[^>]+src="([^">]+)"/i);
+    if (m) ogImage = m[1];
   }
 
-  const description = content.replace(/<[^>]*>/g, "").slice(0, 150);
+  const description = content.replace(/<[^>]+>/g, '').slice(0, 150);
 
   return new Response(`<!DOCTYPE html>
 <html lang="en">
@@ -20,58 +18,37 @@ export async function onRequestGet({ params, env }) {
 <meta charset="UTF-8">
 <title>${title}</title>
 
+<meta property="og:type" content="article">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
-${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
-<meta property="og:type" content="article">
-<meta name="twitter:card" content="summary_large_image">
+${ogImage ? `<meta property="og:image" content="${ogImage}">` : ``}
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body {
-  font-family: Georgia, serif;
-  background: #fff;
-  margin: 0;
-  padding: 0;
-}
-
-article {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 20px;
   line-height: 1.6;
 }
-
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 1.2em auto;
-}
-
-p {
-  margin: 1em 0;
-}
-
-a {
-  color: #0645ad;
-}
-
-ul, ol {
-  margin-left: 20px;
-}
+img { max-width: 100%; height: auto; }
+figure { margin: 20px 0; text-align: center; }
+figcaption { font-size: 0.9em; color: #666; }
 </style>
 </head>
 
 <body>
 <article>
-<h1>${title}</h1>
+<header>
+  <h1>${title}</h1>
+  <p class="author">NUCS Diary</p>
+</header>
+
+<div class="content">
 ${content}
+</div>
 </article>
 </body>
 </html>`, {
