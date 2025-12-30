@@ -10,9 +10,11 @@ export async function onRequestPost({ request, env }) {
       ogImage: data.ogImage || ""
     });
 
+
     await env.POSTS.put(id, postData);
 
-    return new Response(JSON.stringify({ url: /p/${id} }), {
+
+    return new Response(JSON.stringify({ url: `/p/${id}` }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err) {
